@@ -1,0 +1,15 @@
+- name: Install Configuration generator
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  become: yes
+
+  tasks:
+
+    - name: Install config generation
+      vars:
+        sshkey: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+        pullsecret : "{{ lookup('file', '/root/ocp43-install/config/pull-secret.txt') }}"
+      template:
+        src: /root/ocp43-install/config/install-config-template.yaml
+        dest: /root/ocp43-install/config/install-config.yaml

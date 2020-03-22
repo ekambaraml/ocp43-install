@@ -1,0 +1,35 @@
+- name: Setup VM network for OpenShift Cluster on the Baremetal Server
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  become: yes
+
+  tasks:
+
+    - name: check for existing network
+      shell: brctl show
+      register: output
+      tags: br-ocp
+
+    - name: Create the openshift cluster network
+      shell: virsh net-define /root/ocp43-install/config/ocp-network.xml
+      register: output
+      tags: br-ocp
+
+    - debug: var=output.stdout_lines
+
+    - name: auto-start
+      shell: virsh net-autostart ocp
+      register: output
+      tags: ocp-down
+    - debug: var=output.stdout_lines
+
+    - name: start ocp network
+      shell: virsh net-start ocp
+      register: output
+    - debug: var=output.stdout_lines
+
+    - name: status
+      shell: virsh net-list --all 
+      register: output
+    - debug: var=output.stdout_lines

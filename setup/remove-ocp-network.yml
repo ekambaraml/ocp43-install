@@ -1,0 +1,34 @@
+- name: Delete/Remove br-ocp network for the ocp cluster setup
+  hosts: 127.0.0.1
+  connection: local
+  gather_facts: false
+  become: yes
+
+  tasks:
+
+    - name: check for existing network
+      shell: brctl show
+      register: output
+      tags: br-ocp
+
+    - name: check for existing network
+      shell: virsh net-list --all  
+      register: output
+      tags: br-ocp
+
+    - debug: var=output.stdout_lines
+
+    - name: bring down the br-ocp network
+      shell: virsh net-destroy ocp
+      register: output
+      tags: ocp-down
+
+    - name: Delete the br-ocp network
+      shell:  virsh net-undefine ocp
+      register: output
+
+    - name: Restart kvm
+      shell: systemctl restart libvirtd
+      register: output
+    
+    - debug: var=output.stdout_lines
